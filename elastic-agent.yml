@@ -1,0 +1,47 @@
+---
+- name: Configure DNS on Ubuntu hosts
+  hosts: Ubuntu
+  tasks:
+   - name: Configure DNS
+     lineinfile:
+       path: /etc/resolv.conf
+       line: "nameserver 192.168.1.11"
+       insertafter: EOF
+
+- name: Transfer and execute a script to deploy elastic-agent on CentOS and RHEL.
+  hosts:
+     - CentOS
+     - RHEL
+  tasks:
+     - name: Transfer elastic-agent package
+       copy: src=/opt/ansible/elastic-agent-8.11.2-linux-x86_64.tar.gz dest=/root/elastic-agent-8.11.2-linux-x86_64.tar.gz
+     - name: Transfer fleet.crt
+       copy: src=/opt/ansible/fleet.crt dest=/root/fleet.crt
+     - name: Transfer the ca crt
+       copy: src=/opt/ansible/elastic-ca.crt dest=/root/elastic-ca.crt
+     - name: Transfer the script
+       copy: src=elastic-agent-rh.sh dest=/root mode=0777
+     - name: Execute the script
+       command: sh /root/elastic-agent-rh.sh
+     - name: Delete the script
+        file: 
+         path: /root/elastic-agent-rh.sh
+         state: absent
+- name: Transfer and execute a script to deploy elastic-agent on Ubuntu.
+  hosts:
+     - Ubuntu
+  tasks:
+     - name: Transfer elastic-agent package
+       copy: src=/opt/ansible/elastic-agent-8.11.2-linux-x86_64.tar.gz dest=/root/elastic-agent-8.11.2-linux-x86_64.tar.gz
+     - name: Transfer fleet.crt
+       copy: src=/opt/ansible/fleet.crt dest=/root/fleet.crt
+     - name: Transfer the ca cert
+       copy: src=/opt/ansible/elastic-ca.crt dest=/root/elastic-ca.crt
+     - name: Transfer the script
+       copy: src=elastic-agent-deb.sh dest=/root mode=0777
+     - name: Execute the script
+       command: sh /root/elastic-agent.sh
+     - name: Delete the script
+        file: 
+         path: /root/elastic-agent-rh.sh
+         state: absent
